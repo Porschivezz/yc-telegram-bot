@@ -20,7 +20,6 @@ resource "yandex_container_repository" "bot" {
 
 data "yandex_compute_image" "ubuntu" {
   family      = "ubuntu-2204-lts"
-  most_recent = true
 }
 
 resource "yandex_compute_instance" "bot_vm" {
