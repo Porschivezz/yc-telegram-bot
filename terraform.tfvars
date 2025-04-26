@@ -1,0 +1,7 @@
+yc_token       = "y0_AgAAAAAsci9lAATuwQAAAAEDFfqwAACciyB1Ar5Cb5mpSgSyD4CwNESzDg"
+cloud_id       = "b1gi4j1iier8kigiv89q"
+folder_id      = "b1gj34gf3dvnmkjpr3cb"
+zone           = "ru-central1-b"
+subnet_id      = "e2le2atre0pk5iuev9oo"
+registry_id    = "crpp9aqj5cipouqgeev8"
+telegram_token = "7772445224:AAFHtxgxz9YcV334hYsjzOdsPk4k48uyq3M"
