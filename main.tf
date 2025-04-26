@@ -18,6 +18,11 @@ resource "yandex_container_repository" "bot" {
   name = "${var.registry_id}/telegram-bot"
 }
 
+data "yandex_compute_image" "ubuntu" {
+  family      = "ubuntu-2204-lts"
+  most_recent = true
+}
+
 resource "yandex_compute_instance" "bot_vm" {
   name        = "telegram-bot-vm"
   platform_id = "standard-v1"
@@ -29,7 +34,7 @@ resource "yandex_compute_instance" "bot_vm" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd8h6k4g8r2m1q9t8eaj"
+      image_id = data.yandex_compute_image.ubuntu.id
     }
   }
 
