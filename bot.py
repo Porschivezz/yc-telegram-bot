@@ -24,7 +24,13 @@ OPENAI_API_KEY = "sk-proj-W4_uxP8IltN77BreRaHoGcl8P2xMNfJOPd6wdXO_Nu_4Im3rqsVI2c
 PAYMENT_PROVIDER_TOKEN = "381764678:TEST:121523"
 PRICE_AMOUNT = 9900  # 99 RUB
 CURRENCY = "RUB"
+
+# Set OpenAI key and proxy
 openai.api_key = OPENAI_API_KEY
+openai.proxy = {
+    "http":  "http://vmhprefy:s7jox1i8odvc@p.webshare.io:80",
+    "https": "http://vmhprefy:s7jox1i8odvc@p.webshare.io:80",
+}
 
 # Free usage limit: 100 minutes = 6000 seconds
 FREE_LIMIT = 100 * 60
@@ -133,7 +139,6 @@ async def successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def audio_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
-    # Determine duration and store file_id
     duration = 0
     if update.message.voice:
         duration = update.message.voice.duration
@@ -142,7 +147,6 @@ async def audio_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         duration = update.message.audio.duration
         context.user_data["file_id"] = update.message.audio.file_id
 
-    # Free quota logic
     if not is_subscribed(user_id):
         used = get_used_seconds(user_id)
         if used + duration <= FREE_LIMIT:
@@ -160,7 +164,7 @@ async def task_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     from telegram.error import BadRequest
     query = update.callback_query
     await query.answer()
-    task_type = query.data  # 'task_1', 'task_2' or 'task_3'
+    task_type = query.data
 
     file_id = context.user_data.get("file_id")
     if not file_id:
@@ -170,7 +174,6 @@ async def task_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             pass
         return
 
-    # Download and transcribe audio in background
     async def transcribe():
         file = await context.bot.get_file(file_id)
         path = f"{file_id}.ogg"
@@ -197,12 +200,8 @@ async def task_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             prev_pct = pct
         await asyncio.sleep(1)
 
-    # Get raw transcription
     raw_text = await trans_task
-
-    # Apply appropriate prompt
     system_prompt = TASK_PROMPTS.get(task_type)
-    # Fallback to raw_text if no prompt
     if system_prompt:
         completion = openai.ChatCompletion.create(
             model="gpt-4o-mini",
@@ -218,14 +217,11 @@ async def task_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         result_text = raw_text
 
     context.user_data["last_text"] = result_text
-
-    # Final progress update
     try:
         await query.edit_message_text("Обработка: 100%")
     except BadRequest:
         pass
 
-    # Show processed result with action menu
     keyboard = [
         [InlineKeyboardButton("Отправить результат", switch_inline_query_current_chat=result_text)],
         [InlineKeyboardButton("Сделать лаконичнее", callback_data="action_shorten")],
@@ -276,7 +272,19 @@ if __name__ == "__main__":
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         level=logging.INFO
     )
-    app = Application.builder().token(BOT_TOKEN).build()
+    # Build application with proxy settings
+    app = (
+        Application.builder()
+        .token(BOT_TOKEN)
+        .request_kwargs({
+            "proxy_url": "http://vmhprefy:s7jox1i8odvc@p.webshare.io:80",
+            "urllib3_proxy_kwargs": {
+                "username": "vmhprefy",
+                "password": "s7jox1i8odvc"
+            }
+        })
+        .build()
+    )
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("subscribe", subscribe))
     app.add_handler(PreCheckoutQueryHandler(precheckout_callback))
