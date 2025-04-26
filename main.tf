@@ -27,7 +27,7 @@ resource "yandex_compute_instance" "bot_vm" {
   platform_id = "standard-v1"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
