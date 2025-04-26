@@ -14,7 +14,7 @@ provider "yandex" {
   zone      = var.zone
 }
 
-resource "yandex_containerregistry_repository" "bot" {
+resource "yandex_container_registry_repository" "bot" {
   name      = "telegram-bot"
   folder_id = var.folder_id
 }
