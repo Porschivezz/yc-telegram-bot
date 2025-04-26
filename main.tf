@@ -43,6 +43,7 @@ resource "yandex_compute_instance" "bot_vm" {
   }
 
   metadata = {
+    ssh-keys = "ubuntu:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCqjjCiO6Moj+OTV51QrGST1gjUyRDb7xModv8Lvog/9V5KI1hWjPdHoZn2ZeeNt17PbCPDOBO9TSCr44KjQ/+EhkzjYQGutgIejPIO7Yg5j5yQvkl/vtJ5QtLLfCZyCy6GjhOnp5k56G+/VLpOlPYZeizsBIBvf72XaUnD/WBYyxO2rxpgpMtcP51Vz2XgsxYo1hjJNjL6pUAo6s2swwRAOo5xSoRXtzjeZJzXJmZ0pzGbP0MThE+QLdaN7GA7u7OZfnHArOaikF6eJTnqHWjJ0D23RSCHowpmFTHCYrHkXu234p4y1DSFSHEzruJ+o9PkFSGA5jRdlQvZ+wP+qFYR n.zharkov92@yandex.ru"
     user-data = <<-EOC
       #cloud-config
       packages:
