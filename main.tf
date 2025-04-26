@@ -15,8 +15,7 @@ provider "yandex" {
 }
 
 resource "yandex_container_repository" "bot" {
-  registry_id = var.registry_id
-  name        = "telegram-bot"
+  name = "${var.registry_id}/telegram-bot"
 }
 
 resource "yandex_compute_instance" "bot_vm" {
