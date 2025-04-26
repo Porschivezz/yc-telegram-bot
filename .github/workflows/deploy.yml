@@ -1,0 +1,41 @@
+name: Build & Deploy Bot
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build & Push Docker image
+        run: |
+          echo "${{ secrets.YC_OAUTH_TOKEN }}" \
+            | docker login --username oauth --password-stdin cr.yandex/${{ secrets.REGISTRY_ID }}
+          docker build -t cr.yandex/${{ secrets.REGISTRY_ID }}/telegram-bot:latest .
+          docker push cr.yandex/${{ secrets.REGISTRY_ID }}/telegram-bot:latest
+        env:
+          YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
+          REGISTRY_ID:   ${{ secrets.REGISTRY_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init & Apply
+        env:
+          YC_TOKEN:               ${{ secrets.YC_OAUTH_TOKEN }}
+          TF_VAR_cloud_id:        ${{ secrets.CLOUD_ID }}
+          TF_VAR_folder_id:       ${{ secrets.FOLDER_ID }}
+          TF_VAR_zone:            ${{ secrets.ZONE }}
+          TF_VAR_subnet_id:       ${{ secrets.SUBNET_ID }}
+          TF_VAR_registry_id:     ${{ secrets.REGISTRY_ID }}
+          TF_VAR_telegram_token:  ${{ secrets.TELEGRAM_TOKEN }}
+        run: |
+          terraform init
+          terraform apply -auto-approve
